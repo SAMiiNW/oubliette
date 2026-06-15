@@ -1,0 +1,30 @@
+{
+  "author_tx": "0x576468bcbb21da46e9263dce3ff103dd13f75be8eaac77bbeebe6fd6cf83692d",
+  "attempt_tx": "0x84e8f434fc50a99fd1966ce189614c188045b582e3672ee7116668e07fca164f",
+  "lock_id": "lock-1",
+  "stats_after": {
+    "attempts": 1,
+    "chronicle": 1,
+    "locks": 1,
+    "solves": 1
+  },
+  "chronicle_head": {
+    "actor": "0xD87979d71C80d253CfB133CE7C6E4b818FFa5097",
+    "advanced": true,
+    "ingenuity": 90,
+    "lock": "lock-1",
+    "lock_title": "The Tidelocked Vault",
+    "note": "Your explanation precisely identifies the moment the bolt retracts.",
+    "ruling": "SOLVED",
+    "seq": 1
+  },
+  "player": {
+    "actor": "0xD87979d71C80d253CfB133CE7C6E4b818FFa5097",
+    "attempts": 1,
+    "best": 90,
+    "depth": 1,
+    "solved": [
+      "lock-1"
+    ]
+  }
+}
