@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# next.js / static export
+.next/
+out/
+
+# secrets
+.env
+.env.local
+*.key
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# build / deploy artifacts
+artifacts/
+
+# temp debug dumps
+*.log
+*-check-read.mjs
+readtest.mjs
+diag.txt
+*_out.txt
+*_err.txt
