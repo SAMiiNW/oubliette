@@ -1,11 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Gauge, Layers, KeyRound, Award } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import LockKiosk from '@/components/LockKiosk';
 import VaultSpine from '@/components/VaultSpine';
 import Chronicle from '@/components/Chronicle';
@@ -147,67 +145,59 @@ export default function Page() {
     <>
       <Header wallet={wallet} />
 
-      <main className="container" style={{ padding: '1.8rem 1.5rem 0' }}>
-        {/* Status gauges */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '0.8rem',
-            marginBottom: '1.6rem',
-          }}
-        >
-          <Gauges stats={stats} player={player} />
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem',
-            flexWrap: 'wrap',
-            gap: '0.8rem',
-          }}
-        >
-          <div>
-            <h1 style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: 'var(--lamp)' }}>
-              The Oubliette
-            </h1>
-            <p className="etch-label" style={{ marginTop: 4 }}>
-              One lock. One attempt. The gatekeeper rules under consensus.
-            </p>
-          </div>
-          <button
-            className="brass-btn"
-            onClick={() => (wallet.address ? setAuthorOpen(true) : wallet.connect())}
-            style={{ display: 'inline-flex', gap: 7, alignItems: 'center' }}
-          >
-            <Plus size={15} /> Forge a lock
-          </button>
-        </div>
-
+      <main className="kiosk-screen">
         {data.loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: '1rem' }}>
-            <Skeleton height={360} />
+          <div className="kiosk-stage">
+            <Skeleton height={420} />
           </div>
         ) : data.error && data.locks.length === 0 ? (
-          <ErrorState message={friendlyError(data.error)} onRetry={data.refresh} />
+          <div className="kiosk-stage">
+            <ErrorState message={friendlyError(data.error)} onRetry={data.refresh} />
+          </div>
         ) : data.locks.length === 0 ? (
-          <EmptyVault
-            walletConnected={!!wallet.address}
-            onCreate={() => (wallet.address ? setAuthorOpen(true) : wallet.connect())}
-          />
+          <div className="kiosk-stage">
+            <EmptyVault
+              walletConnected={!!wallet.address}
+              onCreate={() => (wallet.address ? setAuthorOpen(true) : wallet.connect())}
+            />
+          </div>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0, 1fr)',
-              gap: '1.2rem',
-            }}
-            className="kiosk-grid"
-          >
-            <div style={{ display: 'grid', gap: '1.2rem' }} className="kiosk-main">
+          <div className="kiosk-layout">
+            {/* Left: the progress spine, a vertical rail of vault doors */}
+            <aside className="kiosk-rail">
+              <div className="rail-readout mono">
+                <span>
+                  vault depth <b>{player?.depth ?? 0}</b>
+                  <i> / </i>
+                  {stats?.locks ?? 0}
+                </span>
+                <span>
+                  {stats?.solves ?? 0} released
+                  <i> . </i>
+                  {stats?.attempts ?? 0} tried
+                </span>
+              </div>
+              <VaultSpine
+                locks={data.locks}
+                activeId={activeId}
+                solvedIds={solvedIds}
+                onSelect={(id) => {
+                  setActiveId(id);
+                  setLastVerdict(null);
+                  tx.reset();
+                }}
+              />
+              <button
+                className="ghost-btn"
+                onClick={() => (wallet.address ? setAuthorOpen(true) : wallet.connect())}
+                style={{ display: 'inline-flex', gap: 7, alignItems: 'center', justifyContent: 'center', marginTop: '0.4rem' }}
+              >
+                <Plus size={13} /> Forge a lock
+              </button>
+            </aside>
+
+            {/* Right: one focused mechanism fills the screen */}
+            <section className="kiosk-stage">
               <LockKiosk
                 lock={activeLock}
                 player={player}
@@ -221,33 +211,16 @@ export default function Page() {
                   tx.reset();
                 }}
               />
-            </div>
-            <aside style={{ display: 'grid', gap: '1.2rem', alignContent: 'start' }} className="kiosk-aside">
-              <div className="plate" style={{ padding: '1.3rem' }}>
-                <VaultSpine
-                  locks={data.locks}
-                  activeId={activeId}
-                  solvedIds={solvedIds}
-                  onSelect={(id) => {
-                    setActiveId(id);
-                    setLastVerdict(null);
-                    tx.reset();
-                  }}
-                />
-              </div>
               <Chronicle entries={data.chronicle} />
-            </aside>
+              {data.lastUpdated && Date.now() - data.lastUpdated > 120000 && (
+                <p className="etch-label" style={{ textAlign: 'center' }}>
+                  Data may be stale. The next refresh is on its way.
+                </p>
+              )}
+            </section>
           </div>
         )}
-
-        {data.lastUpdated && Date.now() - data.lastUpdated > 120000 && (
-          <p className="etch-label" style={{ textAlign: 'center', marginTop: '1rem' }}>
-            Data may be stale. The next refresh is on its way.
-          </p>
-        )}
       </main>
-
-      <Footer />
 
       <AuthorModal
         open={authorOpen}
@@ -272,9 +245,51 @@ export default function Page() {
       <ToastStack toasts={toasts} dismiss={dismiss} />
 
       <style jsx global>{`
+        .kiosk-screen {
+          width: 100%;
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 1.5rem 1.5rem 3rem;
+        }
+        .kiosk-stage {
+          display: grid;
+          gap: 1.2rem;
+          align-content: start;
+          min-width: 0;
+        }
+        .kiosk-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          gap: 1.4rem;
+        }
+        .kiosk-rail {
+          display: grid;
+          gap: 1rem;
+          align-content: start;
+        }
+        .rail-readout {
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+          font-size: 0.72rem;
+          color: var(--text-3);
+        }
+        .rail-readout b {
+          color: var(--lamp);
+          font-variant-numeric: tabular-nums;
+        }
+        .rail-readout i {
+          color: var(--text-3);
+          font-style: normal;
+        }
         @media (min-width: 900px) {
-          .kiosk-grid {
-            grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr) !important;
+          .kiosk-layout {
+            grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+            align-items: start;
+          }
+          .kiosk-rail {
+            position: sticky;
+            top: 84px;
           }
         }
       `}</style>
@@ -288,37 +303,4 @@ async function fetchPlayerSafe(addr: string): Promise<PlayerState | null> {
   } catch {
     return null;
   }
-}
-
-function Gauges({ stats, player }: { stats: ReturnType<typeof useContractData>['stats']; player: PlayerState | null }) {
-  const items = [
-    { icon: Layers, label: 'Locks forged', value: stats?.locks ?? 0, color: 'var(--brass)' },
-    { icon: KeyRound, label: 'Attempts ruled', value: stats?.attempts ?? 0, color: 'var(--text-2)' },
-    { icon: Award, label: 'Locks released', value: stats?.solves ?? 0, color: 'var(--verdigris-bright)' },
-    { icon: Gauge, label: 'Your depth', value: player?.depth ?? 0, color: 'var(--lamp)' },
-  ];
-  return (
-    <>
-      {items.map((it, i) => (
-        <motion.div
-          key={it.label}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-          className="plate"
-          style={{ padding: '0.9rem 1rem', display: 'flex', gap: '0.7rem', alignItems: 'center' }}
-        >
-          <it.icon size={20} color={it.color} style={{ flexShrink: 0 }} />
-          <div>
-            <div className="mono tabnum" style={{ fontSize: '1.3rem', color: 'var(--lamp)', fontWeight: 700 }}>
-              {it.value}
-            </div>
-            <div className="etch-label" style={{ fontSize: '0.56rem' }}>
-              {it.label}
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </>
-  );
 }

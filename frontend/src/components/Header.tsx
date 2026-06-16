@@ -146,6 +146,37 @@ export default function Header({ wallet }: { wallet: WalletState }) {
                         <LogOut size={13} /> Disconnect
                       </button>
                     </div>
+
+                    <div
+                      style={{
+                        marginTop: '0.9rem',
+                        paddingTop: '0.8rem',
+                        borderTop: '1px solid var(--line)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.55rem',
+                      }}
+                    >
+                      <div className="etch-label">Bradbury testnet</div>
+                      <a
+                        className="mono"
+                        href={explorerAddr(EXPLORER, CONTRACT_ADDRESS)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '0.72rem', display: 'inline-flex', gap: 5, alignItems: 'center' }}
+                      >
+                        contract {shortAddr(CONTRACT_ADDRESS)} <ExternalLink size={10} />
+                      </a>
+                      <a
+                        className="mono"
+                        href={FAUCET}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '0.72rem', display: 'inline-flex', gap: 5, alignItems: 'center' }}
+                      >
+                        <Droplet size={11} /> Claim test GEN
+                      </a>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -161,39 +192,6 @@ export default function Header({ wallet }: { wallet: WalletState }) {
               {wallet.connecting ? 'Connecting' : 'Connect'}
             </button>
           )}
-        </div>
-      </div>
-      <div
-        style={{
-          borderTop: '1px solid var(--line)',
-          background: 'rgba(0,0,0,0.25)',
-          fontSize: '0.72rem',
-        }}
-      >
-        <div
-          className="container mono"
-          style={{
-            display: 'flex',
-            gap: '1.2rem',
-            alignItems: 'center',
-            height: 30,
-            color: 'var(--text-3)',
-            flexWrap: 'wrap',
-            overflow: 'hidden',
-          }}
-        >
-          <span style={{ color: 'var(--verdigris-bright)' }}>BRADBURY TESTNET</span>
-          <a
-            href={explorerAddr(EXPLORER, CONTRACT_ADDRESS)}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ display: 'inline-flex', gap: 4, alignItems: 'center' }}
-          >
-            {shortAddr(CONTRACT_ADDRESS)} <ExternalLink size={10} />
-          </a>
-          <a href={FAUCET} target="_blank" rel="noopener noreferrer">
-            Claim test GEN
-          </a>
         </div>
       </div>
     </header>
